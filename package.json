@@ -1,0 +1,42 @@
+{
+  "name": "@jhel/om",
+  "version": "0.0.4",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JHelar/om.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JHelar/om/issues"
+  },
+  "homepage": "https://github.com/JHelar/om",
+  "author": "JHel",
+  "publishConfig": {
+    "access": "public"
+  },
+  "np": {
+    "contents": "dist"
+  },
+  "scripts": {
+    "test": "jest --coverage",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "yarn typecheck -w",
+    "build": "tsc -p ./tsconfig.json",
+    "publish": "yarn build && np"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
+    "eslint": "^8.14.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^27.5.1",
+    "prettier": "^2.6.2",
+    "ts-jest": "^27.1.4",
+    "typescript": "^4.6.3"
+  }
+}
