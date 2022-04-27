@@ -1,17 +1,13 @@
-import type { NullableValues, OmMapper, OmSchema } from './types';
+import { CreateOm } from './types';
 
-export const createOm =
-  <TFromObject = any, TToObject = any>(
-    schema: OmSchema<TFromObject, TToObject>
-  ): OmMapper<TFromObject, TToObject> =>
-  (fromObject) => {
-    const result = Object.keys(schema).reduce(
-      (prev, current) => ({
-        ...prev,
-        [current]: (schema as any)[current](fromObject)
-      }),
-      {} as NullableValues<TToObject>
-    );
+export const createOm: CreateOm = (schema) => (fromObject) => {
+  const result = Object.keys(schema).reduce(
+    (prev, current) => ({
+      ...prev,
+      [current]: (schema as any)[current](fromObject)
+    }),
+    {} as any
+  );
 
-    return result;
-  };
+  return result;
+};

@@ -1,60 +1,95 @@
+import { S, O, U, L, B } from 'ts-toolbelt';
+
 type Keys<TShape> = TShape extends TShape ? keyof TShape : never;
 
-type PropertyKeys<TShape> = TShape extends Record<string, unknown>
+type ObjectRecord<TKey = string> = { [k in `${string & TKey}`]: unknown };
+
+type NextShape<TStringKey, TShape> =
+  TStringKey extends `${infer TMainKey}.${infer TNextKey}.${infer TRestKey}`
+    ? TShape extends ObjectRecord<TMainKey>
+      ? Extract<TShape[`${TMainKey}`], ObjectRecord<TNextKey>>
+      : never
+    : TStringKey extends `${infer TMainKey}.${infer TNextKey}`
+    ? TShape extends ObjectRecord<TMainKey>
+      ? Extract<TShape[`${TMainKey}`], ObjectRecord<TNextKey>>
+      : never
+    : TStringKey extends Keys<TShape>
+    ? TShape[TStringKey]
+    : never;
+
+type ValidKeys<
+  TLookupKey,
+  TShape,
+  S extends string = ''
+> = TLookupKey extends `${infer TKey}.${infer TRestKey}`
+  ? TKey extends Keys<TShape>
+    ? S extends ''
+      ? ValidKeys<TRestKey, NextShape<TLookupKey, TShape>, TKey>
+      : ValidKeys<TRestKey, NextShape<TLookupKey, TShape>, `${S}.${TKey}`>
+    : TShape
+  : TLookupKey extends Keys<TShape>
+  ? S extends ''
+    ? TLookupKey
+    : `${S}.${string & TLookupKey}`
+  : TShape;
+
+type AllObjectKeys<TShape> = TShape extends ObjectRecord
   ?
       | `${string & Keys<TShape>}`
-      | `${string & Keys<TShape>}.${PropertyKeys<TShape[Keys<TShape>]>}`
+      | `${string & Keys<TShape>}.${AllObjectKeys<TShape[Keys<TShape>]>}`
   : never;
 
-type AssertKeyType<
-  TStringKey,
-  TFromShape,
-  TType,
-  S extends string = ''
-> = TStringKey extends `${infer TKey}.${infer TRestKey}`
-  ? TKey extends Keys<TFromShape>
-    ? S extends ''
-      ? AssertKeyType<TRestKey, TFromShape[TKey], TType, TKey>
-      : AssertKeyType<TRestKey, TFromShape[TKey], TType, `${S}.${TKey}`>
-    : never
-  : TStringKey extends `${infer TKey}`
-  ? TKey extends Keys<TFromShape>
-    ? TFromShape[TKey] extends TType
-      ? S extends ''
-        ? TKey
-        : `${S}.${TKey}`
+export type ObjectKeys<TShape extends object> = ValidKeys<
+  AllObjectKeys<TShape>,
+  TShape
+>;
+
+type TypeForKey<TStringKey, TShape> =
+  TStringKey extends `${infer TKey}.${infer TRestKey}`
+    ? TKey extends Keys<TShape>
+      ? TypeForKey<TRestKey, NextShape<TStringKey, TShape>>
       : never
-    : never
+    : TStringKey extends Keys<TShape>
+    ? TShape[TStringKey]
+    : never;
+
+export type Maybe<TValue> = TValue | null;
+export type MapValueFn<TShape, TValue> = <TShapeInfered extends TShape>(
+  from: TShapeInfered
+) => Maybe<TValue>;
+type Unwrap<TMaybe> = TMaybe extends Maybe<infer TValue> ? TValue : never;
+
+type ValueFromTake<TTake> = TTake extends (from: any) => infer TResult
+  ? Unwrap<TResult>
   : never;
 
-export type TakeValue<TValue> = TValue | null;
+type ShapeFromTake<TTake> = TTake extends (from: infer TShape) => infer TResult
+  ? TShape
+  : never;
 
-export type TakeValueFn<TFromShape, TValue> = (
-  fromObject: TFromShape
-) => TakeValue<TValue>;
-
-export type Take = <TFromShape = any, TValue = any>(
-  key: AssertKeyType<PropertyKeys<TFromShape>, TFromShape, TValue>
-) => TakeValueFn<TFromShape, TValue>;
-
-export type Either = <TFromShape = any, TValue = any>(
-  ...takes: TakeValueFn<TFromShape, TValue>[]
-) => TakeValueFn<TFromShape, TValue>;
-
-export type When = <TFromShape = any, TValue = any, TResultValue = any>(
-  key: AssertKeyType<PropertyKeys<TFromShape>, TFromShape, TValue>,
-  pred: (value: TakeValue<TValue>) => boolean,
-  take: TakeValueFn<TFromShape, TResultValue>
-) => TakeValueFn<TFromShape, TResultValue>;
-
-export type NullableValues<TObject> = {
-  [k in keyof TObject]: TObject[k] | null;
+type OmSchema<TShape extends ObjectRecord, TToShape extends ObjectRecord> = {
+  [k in keyof TToShape]: MapValueFn<TShape, TToShape[k]>;
 };
+export type CreateOm = <
+  TShape extends ObjectRecord,
+  TToShape extends ObjectRecord
+>(
+  schema: OmSchema<TShape, TToShape>
+) => MapValueFn<TShape, TToShape>;
 
-export type OmSchema<TFromShape, TToShape> = {
-  [k in keyof TToShape]: TakeValueFn<TFromShape, TToShape[k]>;
-};
+export type Take = <
+  TShape extends ObjectRecord,
+  TKey extends ObjectKeys<TShape>
+>(
+  key: TKey
+) => MapValueFn<TShape, TypeForKey<TKey, TShape>>;
 
-export type OmMapper<TFromShape, TToShape> = (
-  from: TFromShape
-) => NullableValues<TToShape>;
+export type Either = <TTake extends any[]>(
+  ...takes: TTake
+) => MapValueFn<ShapeFromTake<TTake[number]>, ValueFromTake<TTake[number]>>;
+
+export type When = <TPredTake, TTake>(
+  predTake: TPredTake,
+  pred: (value: Maybe<ValueFromTake<TPredTake>>) => boolean,
+  take: TTake
+) => MapValueFn<ShapeFromTake<TPredTake>, ValueFromTake<TTake>>;

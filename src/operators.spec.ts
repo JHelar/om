@@ -37,7 +37,9 @@ describe('operators', () => {
   describe('take', () => {
     it('should retrive value at given prop string', () => {
       const mockValue = 'TEST';
-      const actual = take<TestFromObject>('test.nested.value' as any)({
+      const actual = take<TestFromObject, 'test.nested.value'>(
+        'test.nested.value'
+      )({
         test: {
           nested: {
             value: mockValue
@@ -49,7 +51,9 @@ describe('operators', () => {
     });
 
     it('should handle null in property path', () => {
-      const actual = take<TestFromObject>('test.nested.value' as any)({
+      const actual = take<TestFromObject, 'test.nested.value'>(
+        'test.nested.value'
+      )({
         test: {
           nested: null
         }
@@ -59,7 +63,9 @@ describe('operators', () => {
     });
 
     it('should handle null as first prop', () => {
-      const actual = take<TestFromObject>('test.nested.value' as any)({
+      const actual = take<TestFromObject, 'test.nested.value'>(
+        'test.nested.value'
+      )({
         test: null
       });
 
@@ -70,8 +76,12 @@ describe('operators', () => {
   describe('either', () => {
     it('should retrive the first defined property value', () => {
       const mockValue = 'TEST';
-      const take1 = take<TestFromObject>('test.nested.value' as any);
-      const take2 = take<TestFromObject>('test.nested2.value' as any);
+      const take1 = take<TestFromObject, 'test.nested.value'>(
+        'test.nested.value'
+      );
+      const take2 = take<TestFromObject, 'test.nested2.value'>(
+        'test.nested2.value'
+      );
 
       const actual = either(
         take1,
@@ -93,8 +103,12 @@ describe('operators', () => {
 
     it('should retrive the second value if the first one is not defined', () => {
       const mockValue = 'TEST';
-      const take1 = take<TestFromObject>('test.nested.value' as any);
-      const take2 = take<TestFromObject>('test.nested2.value' as any);
+      const take1 = take<TestFromObject, 'test.nested.value'>(
+        'test.nested.value'
+      );
+      const take2 = take<TestFromObject, 'test.nested2.value'>(
+        'test.nested2.value'
+      );
 
       const actual = either(
         take1,
@@ -115,8 +129,12 @@ describe('operators', () => {
     });
 
     it('should return null if either values are not defined', () => {
-      const take1 = take<TestFromObject>('test.nested.value' as any);
-      const take2 = take<TestFromObject>('test.nested2.value' as any);
+      const take1 = take<TestFromObject, 'test.nested.value'>(
+        'test.nested.value'
+      );
+      const take2 = take<TestFromObject, 'test.nested2.value'>(
+        'test.nested2.value'
+      );
 
       const actual = either(
         take1,
@@ -137,10 +155,19 @@ describe('operators', () => {
     it('should retrive the the value if predicate returns true', () => {
       const mockPredicateValue = 'TEST';
       const mockValue = true;
-      const actual = when<TestFromObject>(
-        'test.nested.value' as any,
+
+      const take1 = take<TestFromObject, 'test.nested.value'>(
+        'test.nested.value'
+      );
+
+      const take2 = take<TestFromObject, 'test.nested2.value'>(
+        'test.nested2.value'
+      );
+
+      const actual = when(
+        take1,
         (value) => value === mockPredicateValue,
-        take('test.nested2.boolValue' as any)
+        take2
       )({
         test: {
           nested: {
@@ -154,26 +181,6 @@ describe('operators', () => {
       });
 
       expect(actual).toEqual(mockValue);
-    });
-
-    it('should handle a joined object', () => {
-      const expected: FooObject = {
-        one: 'ONE',
-        two: 'TWO',
-        three: 'THREE'
-      };
-      const actual = when<TestJoinedObject>(
-        '__typename',
-        (typename) => typename === 'FOO',
-        take('value.foo')
-      )({
-        __typename: 'FOO',
-        value: {
-          foo: expected
-        }
-      });
-
-      expect(actual).toBe(expected);
     });
   });
 });

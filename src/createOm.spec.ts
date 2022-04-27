@@ -9,15 +9,11 @@ type TestFromObject = {
   };
 };
 
-type TestToObject = {
-  test: string;
-};
-
 describe('createOm', () => {
   it('should correctly map to given object schema', () => {
     const mockValue = 'TEST';
-    const test = take<TestFromObject, string>('test.nested.value');
-    const om = createOm<TestFromObject, TestToObject>({
+    const test = take<TestFromObject, 'test.nested.value'>('test.nested.value');
+    const om = createOm({
       test
     });
 
