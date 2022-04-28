@@ -1,4 +1,5 @@
 import { take, either, when } from './operators';
+import { ObjectKeys } from './types';
 
 type TestFromObject = {
   test: {
@@ -70,6 +71,18 @@ describe('operators', () => {
       });
 
       expect(actual).toEqual(null);
+    });
+
+    it('should handle joined object', () => {
+      const actual = take<TestJoinedObject, 'value.bar'>('value.bar')({
+        test: '',
+        __typename: 'BAR',
+        value: {
+          bar: 'BAR'
+        }
+      });
+
+      expect(actual).toEqual('BAR');
     });
   });
 
@@ -160,8 +173,8 @@ describe('operators', () => {
         'test.nested.value'
       );
 
-      const take2 = take<TestFromObject, 'test.nested2.value'>(
-        'test.nested2.value'
+      const take2 = take<TestFromObject, 'test.nested2.boolValue'>(
+        'test.nested2.boolValue'
       );
 
       const actual = when(

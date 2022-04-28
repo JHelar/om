@@ -1,37 +1,35 @@
-import { S, O, U, L, B } from 'ts-toolbelt';
-
 type Keys<TShape> = TShape extends TShape ? keyof TShape : never;
 
-type ObjectRecord<TKey = string> = { [k in `${string & TKey}`]: unknown };
+type ObjectRecord<TKey = string> = { [k in `${string & TKey}`]?: unknown };
 
 type NextShape<TStringKey, TShape> =
   TStringKey extends `${infer TMainKey}.${infer TNextKey}.${infer TRestKey}`
-    ? TShape extends ObjectRecord<TMainKey>
-      ? Extract<TShape[`${TMainKey}`], ObjectRecord<TNextKey>>
+    ? TMainKey extends Keys<TShape>
+      ? Extract<TShape[TMainKey], ObjectRecord<TNextKey>>
       : never
     : TStringKey extends `${infer TMainKey}.${infer TNextKey}`
-    ? TShape extends ObjectRecord<TMainKey>
-      ? Extract<TShape[`${TMainKey}`], ObjectRecord<TNextKey>>
+    ? TMainKey extends Keys<TShape>
+      ? Extract<TShape[TMainKey], ObjectRecord<TNextKey>>
       : never
     : TStringKey extends Keys<TShape>
     ? TShape[TStringKey]
     : never;
 
 type ValidKeys<
-  TLookupKey,
+  TStringKey,
   TShape,
   S extends string = ''
-> = TLookupKey extends `${infer TKey}.${infer TRestKey}`
-  ? TKey extends Keys<TShape>
+> = TStringKey extends `${infer TMainKey}.${infer TNextKey}`
+  ? TMainKey extends Keys<TShape>
     ? S extends ''
-      ? ValidKeys<TRestKey, NextShape<TLookupKey, TShape>, TKey>
-      : ValidKeys<TRestKey, NextShape<TLookupKey, TShape>, `${S}.${TKey}`>
-    : TShape
-  : TLookupKey extends Keys<TShape>
+      ? ValidKeys<TNextKey, NextShape<TStringKey, TShape>, TMainKey>
+      : ValidKeys<TNextKey, NextShape<TStringKey, TShape>, `${S}.${TMainKey}`>
+    : S
+  : TStringKey extends Keys<TShape>
   ? S extends ''
-    ? TLookupKey
-    : `${S}.${string & TLookupKey}`
-  : TShape;
+    ? TStringKey
+    : `${S}.${string & TStringKey}`
+  : S;
 
 type AllObjectKeys<TShape> = TShape extends ObjectRecord
   ?
