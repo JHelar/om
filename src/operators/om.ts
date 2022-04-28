@@ -1,6 +1,6 @@
-import { CreateOm } from './types';
+import { Om } from '../types';
 
-export const createOm: CreateOm = (schema) => (fromObject) => {
+export const om: Om = (schema) => (fromObject) => {
   const result = Object.keys(schema).reduce(
     (prev, current) => ({
       ...prev,

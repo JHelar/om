@@ -68,10 +68,7 @@ type ShapeFromTake<TTake> = TTake extends (from: infer TShape) => infer TResult
 type OmSchema<TShape extends ObjectRecord, TToShape extends ObjectRecord> = {
   [k in keyof TToShape]: MapValueFn<TShape, TToShape[k]>;
 };
-export type CreateOm = <
-  TShape extends ObjectRecord,
-  TToShape extends ObjectRecord
->(
+export type Om = <TShape extends ObjectRecord, TToShape extends ObjectRecord>(
   schema: OmSchema<TShape, TToShape>
 ) => MapValueFn<TShape, TToShape>;
 
