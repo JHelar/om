@@ -57,11 +57,11 @@ export type MapValueFn<TShape, TValue> = <TShapeInfered extends TShape>(
 ) => Maybe<TValue>;
 type Unwrap<TMaybe> = TMaybe extends Maybe<infer TValue> ? TValue : never;
 
-type ValueFromTake<TTake> = TTake extends (from: any) => infer TResult
+type ValueFromTake<TTake> = TTake extends (from: unknown) => infer TResult
   ? Unwrap<TResult>
   : never;
 
-type ShapeFromTake<TTake> = TTake extends (from: infer TShape) => infer TResult
+type ShapeFromTake<TTake> = TTake extends (from: infer TShape) => unknown
   ? TShape
   : never;
 
@@ -72,12 +72,9 @@ export type Om = <TShape extends ObjectRecord, TToShape extends ObjectRecord>(
   schema: OmSchema<TShape, TToShape>
 ) => MapValueFn<TShape, TToShape>;
 
-export type Take = <
-  TShape extends ObjectRecord,
-  TKey extends ObjectKeys<TShape>
->(
+export type Take = <TKey extends string>(
   key: TKey
-) => MapValueFn<TShape, TypeForKey<TKey, TShape>>;
+) => <TShape>(from: TShape) => Maybe<TypeForKey<TKey, TShape>>;
 
 export type Either = <TTake extends any[]>(
   ...takes: TTake
