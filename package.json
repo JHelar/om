@@ -24,7 +24,9 @@
     "test": "jest --coverage",
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "yarn typecheck -w",
-    "build": "tsc -p ./tsconfig.json",
+    "dist:clean": "rm -rf dist",
+    "dist:build": "tsc -p ./tsconfig.json",
+    "build": "yarn dist:clean && yarn dist:build",
     "release": "yarn build && np"
   },
   "devDependencies": {
