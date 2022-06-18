@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2016",
+    "lib": ["ES2016"],
     "module": "commonjs",
     "rootDir": "src",
     "declaration": true,
@@ -15,5 +16,5 @@
     }
   },
   "exclude": ["node_modules"],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "example/**/*.ts"]
 }

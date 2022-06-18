@@ -7,10 +7,17 @@ type ToKeyPath<TKeyString extends KeyPathString> = _.A.Cast<
   KeyPath
 >;
 
-type KeyValue<TKey extends KeyPath, TShape extends _.O.Object> = _.O.Path<
-  TShape,
-  TKey
->;
+type KeyValue<
+  TKeyPath extends KeyPath,
+  TShape extends _.O.Object,
+  State extends number[] = []
+> = [...State, 1]['length'] extends TKeyPath['length']
+  ? _.O.Pick<TShape, TKeyPath[State['length']]>[TKeyPath[State['length']]]
+  : KeyValue<
+      TKeyPath,
+      _.O.Pick<TShape, TKeyPath[State['length']]>[TKeyPath[State['length']]],
+      [...State, 1]
+    >;
 
 type KeyShape<TKey extends KeyPath> = _.O.Nullable<
   _.O.P.Record<TKey, unknown, ['?', 'W']>,
@@ -18,24 +25,53 @@ type KeyShape<TKey extends KeyPath> = _.O.Nullable<
   'deep'
 >;
 
-type OperatorResult<TValue> = TValue | null;
+type OperatorResult<TValue> = TValue extends undefined ? null : TValue | null;
 
 type Operator = <TShape>(from: TShape) => OperatorResult<any>;
 
-type TakeResultValue<TKeyPath extends KeyPath, TShape> = OperatorResult<
-  KeyValue<TKeyPath, TShape>
->;
-
 type TakeResult<TKeyPath extends KeyPath> = <TShape = KeyShape<TKeyPath>>(
   from: TShape
-) => KeyValue<TKeyPath, TShape>;
+) => OperatorResult<KeyValue<TKeyPath, TShape>>;
 
 type TakeOperationResultValue<TOperation, TShape> =
   TOperation extends TakeResult<infer TKeyPath>
     ? KeyValue<TKeyPath, TShape>
     : never;
 
-type OperatorResultValue<TOperator, TShape> = TakeOperationResultValue<
-  TOperator,
-  TShape
->;
+type EitherResult<TOperators> = <TShape extends _.O.Object>(
+  from: TShape
+) => OperatorResult<OperatorResultValue<TOperators[number], TShape>>;
+
+type EitherOperationResultValue<TOperation, TShape> =
+  TOperation extends EitherResult<infer TOperators>
+    ? OperatorResultValue<TOperators[number], TShape>
+    : never;
+
+type WhenResult<TOperator> = <TShape extends _.O.Object>(
+  from: TShape
+) => OperatorResult<OperatorResultValue<TOperator, TShape>>;
+
+type WhenOperationResultValue<TOperation, TShape> =
+  TOperation extends WhenResult<infer TOperator>
+    ? OperatorResultValue<TOperator, TShape>
+    : never;
+
+type OmResult<TSchema> = <TShape extends _.O.Object>(
+  from: TShape
+) => {
+  [k in keyof TSchema]: OperatorResultValue<TSchema[k], TShape>;
+};
+
+type OmOperationResultValue<TOperation, TShape> = TOperation extends OmResult<
+  infer TSchema
+>
+  ? {
+      [k in keyof TSchema]: OperatorResultValue<TSchema[k], TShape>;
+    }
+  : never;
+
+type OperatorResultValue<TOperator, TShape> =
+  | TakeOperationResultValue<TOperator, TShape>
+  | EitherOperationResultValue<TOperator, TShape>
+  | WhenOperationResultValue<TOperator, TShape>
+  | OmOperationResultValue<TOperator, TShape>;

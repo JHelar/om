@@ -7,10 +7,12 @@ describe('operators', () => {
       const mockValue = 'TEST';
       const take1 = take('test.nested.value');
       const take2 = take('test.nested2.value');
+      const take3 = take('test.nested');
 
       const actual = either(
         take1,
-        take2
+        take2,
+        take3
       )({
         test: {
           nested: {

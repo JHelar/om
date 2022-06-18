@@ -40,7 +40,7 @@ For example the keypath `foo.bar.value` would retreive the value of the `value` 
 }
 ```
 
-## Methods
+## Operators
 
 Every method is composable meaning they can be combined with each other to create more complex structures.
 
@@ -50,7 +50,7 @@ Takes a specific property value from an object by given `keypath`.
 
 If the object does not have the value specified in the keypath (or along the path), it will return `null`
 
-@returns: `MapValueFn`
+@returns: `Operator`
 
 Example:
 
@@ -64,9 +64,9 @@ const theValue = takeBarValue({
 
 ### Either
 
-Supply it with an arbitraty amount of `MapValueFn` values, it will return the **first** defined value from the supplied `MapValuFn`'s.
+Supply it with an arbitraty amount of `Operator` values, it will return the **first** defined value from the supplied `Operator`'s.
 
-@returns: `MapValueFn`
+@returns: `Operator`
 
 Example:
 
@@ -83,19 +83,15 @@ const theValue = takeEitherOopsOrBarValue({
 
 ### When
 
-Takes the given value from the first `MapValueFn` and supplies it to a given predicate, if predicate returns true it will return the value from the second `MapValueFn` otherwise null.
+If first operator is truthy it will return the value from the second `Operator` otherwise null.
 
-@returns: `MapValueFn`
+@returns: `Operator`
 
 ```typescript
 const takeTypename = take('__typename');
 const takeBarValue = take('foo.bar.value');
 
-const whenBarTakeBarValue = when(
-  takeTypename,
-  (typename) => typename === 'BAR',
-  takeBarValue
-);
+const whenBarTakeBarValue = when(takeTypename, takeBarValue);
 
 const theValue = whenBarTakeBarValue({
   __typename: 'BAR',
@@ -107,13 +103,13 @@ const theValue = whenBarTakeBarValue({
 
 Allows to create a new object using a supplied schema.
 
-@return: `MapValueFn`
+@return: `Operator`
 
 ```typescript
 const mapObject = om({
     value: take('foo.bar.value')
     foo: om({
-        bar: when(take('__typename'), (typename) => typename === 'BAR', take('foo.bar'))
+        bar: when(take('__typename'), take('foo.bar'))
     })
 })
 
