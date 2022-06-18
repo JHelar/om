@@ -1,4 +1,4 @@
-import { When } from '../types';
+import { When } from '../types_old';
 
 export const when: When = (predTake, pred, takeValue) => (fromObject) => {
   const predValue = (predTake as any)(fromObject);

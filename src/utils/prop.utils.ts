@@ -1,3 +1,4 @@
+import { KeyPath } from '~/types';
 import { isValueDefined } from './value.utils';
 
 export const prop =
@@ -6,7 +7,7 @@ export const prop =
     fromObject && isValueDefined(fromObject[prop]) ? fromObject[prop] : null;
 
 export const propAt =
-  ([key, ...rest]: string[]) =>
+  ([key, ...rest]: KeyPath) =>
   <TObject>(fromObject: TObject): any | null => {
     const next = prop(key)(fromObject);
     if (!rest.length || next === null) return next;
