@@ -36,7 +36,7 @@ type TakeResult<TKeyPath extends KeyPath> = <TShape = KeyShape<TKeyPath>>(
 type TakeOperationResultValue<TOperation, TShape> =
   TOperation extends TakeResult<infer TKeyPath>
     ? KeyValue<TKeyPath, TShape>
-    : never;
+    : 0;
 
 type EitherResult<TOperators> = <TShape extends _.O.Object>(
   from: TShape
@@ -45,7 +45,7 @@ type EitherResult<TOperators> = <TShape extends _.O.Object>(
 type EitherOperationResultValue<TOperation, TShape> =
   TOperation extends EitherResult<infer TOperators>
     ? OperatorResultValue<TOperators[number], TShape>
-    : never;
+    : 0;
 
 type WhenResult<TOperator> = <TShape extends _.O.Object>(
   from: TShape
@@ -54,7 +54,7 @@ type WhenResult<TOperator> = <TShape extends _.O.Object>(
 type WhenOperationResultValue<TOperation, TShape> =
   TOperation extends WhenResult<infer TOperator>
     ? OperatorResultValue<TOperator, TShape>
-    : never;
+    : 0;
 
 type OmResult<TSchema> = <TShape extends _.O.Object>(
   from: TShape
@@ -68,16 +68,24 @@ type OmOperationResultValue<TOperation, TShape> = TOperation extends OmResult<
   ? {
       [k in keyof TSchema]: OperatorResultValue<TSchema[k], TShape>;
     }
-  : never;
+  : 0;
 
 type ValuePred = <TValue extends _.M.Primitive>(value: TValue) => boolean;
 type ValueIsResult = <TShape extends _.O.Object>(from: TShape) => boolean;
 type ValueIsOperationResultValue<TOperation, TShape> =
-  TOperation extends ValueIsResult ? boolean : never;
+  TOperation extends ValueIsResult ? boolean : 0;
 
-type OperatorResultValue<TOperator, TShape> =
-  | TakeOperationResultValue<TOperator, TShape>
-  | EitherOperationResultValue<TOperator, TShape>
-  | WhenOperationResultValue<TOperator, TShape>
-  | OmOperationResultValue<TOperator, TShape>
-  | ValueIsOperationResultValue<TOperator, TShape>;
+type OperatorResultValue<TOperator, TShape> = TakeOperationResultValue<
+  TOperator,
+  TShape
+> extends 0
+  ? EitherOperationResultValue<TOperator, TShape> extends 0
+    ? WhenOperationResultValue<TOperator, TShape> extends 0
+      ? OmOperationResultValue<TOperator, TShape> extends 0
+        ? ValueIsOperationResultValue<TOperator, TShape> extends 0
+          ? never
+          : ValueIsOperationResultValue<TOperator, TShape>
+        : OmOperationResultValue<TOperator, TShape>
+      : WhenOperationResultValue<TOperator, TShape>
+    : EitherOperationResultValue<TOperator, TShape>
+  : TakeOperationResultValue<TOperator, TShape>;
