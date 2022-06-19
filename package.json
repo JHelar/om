@@ -25,7 +25,7 @@
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "yarn typecheck -w",
     "dist:clean": "rm -rf dist",
-    "dist:build": "tsc -p ./tsconfig.json",
+    "dist:build": "tsc -p ./tsconfig.build.json",
     "build": "yarn dist:clean && yarn dist:build",
     "release": "yarn build && np"
   },
