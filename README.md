@@ -99,6 +99,31 @@ const theValue = whenBarTakeBarValue({
 }); // return "The returned value"
 ```
 
+### ValueIs
+
+First operator strictly checks with given value or runs a given predicate, return `true` or `false` depending on outcome.
+
+@returns: `Operator`
+
+```typescript
+const takeTypename = take('__typename');
+const isTypenameBar = valueIs(takeTypename, 'BAR');
+const isTypenameNotBar = valueIs(
+  takeTypename,
+  (typename) => typename !== 'BAR'
+);
+
+isTypenameBar({
+  __typename: 'BAR',
+  foo: { bar: { value: 'The returned value' } }
+}); // return true
+
+isTypenameNotBar({
+  __typename: 'BAR',
+  foo: { bar: { value: 'The returned value' } }
+}); // return false
+```
+
 ### Om
 
 Allows to create a new object using a supplied schema.

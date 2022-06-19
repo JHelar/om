@@ -70,8 +70,14 @@ type OmOperationResultValue<TOperation, TShape> = TOperation extends OmResult<
     }
   : never;
 
+type ValuePred = <TValue extends _.M.Primitive>(value: TValue) => boolean;
+type ValueIsResult = <TShape extends _.O.Object>(from: TShape) => boolean;
+type ValueIsOperationResultValue<TOperation, TShape> =
+  TOperation extends ValueIsResult ? boolean : never;
+
 type OperatorResultValue<TOperator, TShape> =
   | TakeOperationResultValue<TOperator, TShape>
   | EitherOperationResultValue<TOperator, TShape>
   | WhenOperationResultValue<TOperator, TShape>
-  | OmOperationResultValue<TOperator, TShape>;
+  | OmOperationResultValue<TOperator, TShape>
+  | ValueIsOperationResultValue<TOperator, TShape>;
