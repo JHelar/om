@@ -1,7 +1,7 @@
 import { isValueTruthy } from '~/utils';
-import { When } from './when.types';
+import { WhenOperator } from './when.types';
 
-export const when: When = (operator, success) => (fromObject) => {
+export const when: WhenOperator = (operator, success) => (fromObject) => {
   if (isValueTruthy(operator(fromObject))) {
     return success(fromObject);
   }

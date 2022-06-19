@@ -1,7 +1,7 @@
 import _ from 'ts-toolbelt';
 import { Operator, WhenResult } from '~/types';
 
-export type When = <
+export type WhenOperator = <
   TOperator extends Operator,
   TSuccessOperator extends Operator
 >(

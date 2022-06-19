@@ -1,8 +1,8 @@
 import * as _ from 'ts-toolbelt';
 import { isValueDefined } from '~/utils';
-import { Either } from './either.types';
+import { EitherOperator } from './either.types';
 
-export const either: Either =
+export const either: EitherOperator =
   (...mapFns) =>
   (fromObject) => {
     for (const mapFn of mapFns) {

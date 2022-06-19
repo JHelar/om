@@ -1,6 +1,6 @@
-import { Om } from './om.types';
+import { OmOperator } from './om.types';
 
-export const om: Om = (schema) => (fromObject) =>
+export const om: OmOperator = (schema) => (fromObject) =>
   Object.keys(schema).reduce(
     (prev, current) => ({
       ...prev,
