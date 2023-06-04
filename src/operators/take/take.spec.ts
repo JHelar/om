@@ -1,4 +1,4 @@
-import { take } from './take';
+import { take } from './take.types';
 
 type FooObject = {
   one: string;
@@ -39,27 +39,42 @@ describe('operators', () => {
           bar: mockValue
         }
       };
-      const actual = take('value.bar')(testObject);
+      const actual = take('value.bar').transform(testObject);
 
       expect(actual).toEqual(mockValue);
     });
 
-    it('should handle null in property path', () => {
-      const mockValue = 'TEST';
-      const testObject: TestShape = {
+    it('should retrun whole objects', () => {
+      const mockValue = {
+        nested: {
+          result: {
+            value: 123
+          }
+        }
+      };
+      const testObject = {
         __typename: 'BAR',
         test: 'test',
         value: {
           bar: mockValue
         }
       };
-      const actual = take('value.foo')(testObject);
+      const actual = take('value.bar').transform(testObject);
 
-      expect(actual).toEqual(null);
+      expect(actual).toEqual(mockValue);
+    });
+
+    it('should return the set default value', () => {
+      const mockDefaultValue = 'DEFAULT VALUE';
+      const actual = take('value.bar').default(mockDefaultValue).transform({
+        value: undefined
+      });
+
+      expect(actual).toEqual(mockDefaultValue);
     });
 
     it('should handle null as first prop', () => {
-      const actual = take('maybe.foo.bar')({ maybe: null });
+      const actual = take('maybe.foo.bar').transform({ maybe: null });
 
       expect(actual).toEqual(null);
     });
